@@ -1,0 +1,27 @@
+// Manual mock for @actions/core (ESM-only in v3, can't be require()'d by Jest)
+module.exports = {
+  info: jest.fn(),
+  warning: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+  notice: jest.fn(),
+  setFailed: jest.fn(),
+  setOutput: jest.fn(),
+  getInput: jest.fn(() => ''),
+  getBooleanInput: jest.fn(() => false),
+  exportVariable: jest.fn(),
+  setSecret: jest.fn(),
+  addPath: jest.fn(),
+  group: jest.fn(async (_name, fn) => fn()),
+  startGroup: jest.fn(),
+  endGroup: jest.fn(),
+  saveState: jest.fn(),
+  getState: jest.fn(() => ''),
+  isDebug: jest.fn(() => false),
+  summary: {
+    addRaw: jest.fn().mockReturnThis(),
+    addHeading: jest.fn().mockReturnThis(),
+    addTable: jest.fn().mockReturnThis(),
+    write: jest.fn(),
+  },
+};

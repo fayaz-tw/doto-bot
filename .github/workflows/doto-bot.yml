@@ -1,0 +1,54 @@
+name: Doto Bot
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  issues:
+    types:
+      - closed
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  scan-todos:
+    # Run on push to default branch only
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Doto Bot - Scan TODOs
+        uses: ./
+        with:
+          mode: scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  resolve-todo:
+    # Run when a todo-labeled issue is closed
+    if: >
+      github.event_name == 'issues' &&
+      github.event.action == 'closed' &&
+      contains(github.event.issue.labels.*.name, 'todo')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Doto Bot - Resolve TODO
+        uses: ./
+        with:
+          mode: resolve
+          issue-number: ${{ github.event.issue.number }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
