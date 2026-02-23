@@ -155,13 +155,13 @@ The scanner automatically skips:
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Build the action (bundles with @vercel/ncc)
-npm run build
+pnpm run build
 
 # Run tests
-npm test
+pnpm test
 ```
 
 ## License
