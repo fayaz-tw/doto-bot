@@ -1,14 +1,13 @@
 {
-  "name": "doto-bot",
+  "name": "doto-bot-app",
   "version": "1.0.0",
   "description": "A GitHub Action bot that scans repositories for TODO annotations, creates/manages issues, and raises PRs to remove completed TODOs.",
-  "main": "dist/index.js",
+  "main": "src/app.ts",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/index.ts --bundle --platform=node --target=node20 --outfile=dist/index.js --format=cjs",
-    "lint": "eslint src/",
-    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
-    "typecheck": "tsc --noEmit"
+    "dev": "ts-node-dev src/app.ts",
+    "start": "node dist/app.js",
+    "build": "tsc"
   },
   "keywords": [
     "github-action",
@@ -20,7 +19,9 @@
   "license": "MIT",
   "dependencies": {
     "@actions/core": "^3.0.0",
-    "@actions/github": "^9.0.0"
+    "@actions/github": "^9.0.0",
+    "@octokit/webhooks": "^12.0.0",
+    "express": "^4.18.2"
   },
   "devDependencies": {
     "@swc/core": "^1.15.13",
@@ -29,6 +30,7 @@
     "@types/node": "^25.3.0",
     "esbuild": "^0.27.3",
     "jest": "^30.2.0",
+    "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.3"
   }
 }
