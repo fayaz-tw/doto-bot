@@ -38,7 +38,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: fayaz.mohammad/doto-bot@v1
+      - uses: fayaz07/doto-bot@test-0.0.1
         with:
           mode: scan
         env:
@@ -67,7 +67,7 @@ jobs:
 Scans the repository for TODO comments and syncs them with GitHub Issues.
 
 ```yaml
-- uses: fayaz.mohammad/doto-bot@v1
+- uses: fayaz07/doto-bot@test-0.0.1
   with:
     mode: scan
   env:
@@ -85,7 +85,7 @@ Scans the repository for TODO comments and syncs them with GitHub Issues.
 Creates a PR to remove a TODO when its corresponding issue is closed.
 
 ```yaml
-- uses: fayaz.mohammad/doto-bot@v1
+- uses: fayaz07/doto-bot@test-0.0.1
   with:
     mode: resolve
     issue-number: ${{ github.event.issue.number }}
@@ -119,7 +119,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: fayaz.mohammad/doto-bot@v1
+      - uses: fayaz07/doto-bot@test-0.0.1
         with:
           mode: scan
         env:
@@ -144,7 +144,7 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4
-      - uses: fayaz.mohammad/doto-bot@v1
+      - uses: fayaz07/doto-bot@test-0.0.1
         with:
           mode: resolve
           issue-number: ${{ github.event.issue.number }}
