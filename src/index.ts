@@ -51,36 +51,45 @@ async function handleScan(
   owner: string,
   repo: string,
 ): Promise<void> {
-  const { data: repoData } = await octokit.rest.repos.get({ owner, repo });
-  const defaultBranch = repoData.default_branch;
+  try {
+    const { data: repoData } = await octokit.rest.repos.get({ owner, repo });
+    const defaultBranch = repoData.default_branch;
 
-  // Verify we are on the default branch
-  const currentRef = github.context.ref;
-  const expectedRef = `refs/heads/${defaultBranch}`;
-  if (currentRef !== expectedRef) {
-    core.info(
-      `Current ref (${currentRef}) is not the default branch (${expectedRef}). Skipping scan.`,
-    );
-    return;
+    // Verify we are on the default branch
+    const currentRef = github.context.ref;
+    const expectedRef = `refs/heads/${defaultBranch}`;
+    if (currentRef !== expectedRef) {
+      core.info(
+        `Current ref (${currentRef}) is not the default branch (${expectedRef}). Skipping scan.`,
+      );
+      return;
+    }
+
+    core.info(`Default branch: ${defaultBranch}`);
+
+    const workspacePath = process.env.GITHUB_WORKSPACE || process.cwd();
+    const todos = scanRepository(workspacePath);
+
+    if (todos.length === 0) {
+      core.info('No TODO annotations found in the repository.');
+      core.info('=== Doto Bot Scan Complete ===');
+      return;
+    }
+
+    const todoGroups = groupTodosByDescription(todos);
+    core.info(`Grouped into ${todoGroups.size} unique TODO(s)`);
+
+    await syncIssues(octokit, owner, repo, todoGroups, defaultBranch);
+
+    core.info('=== Doto Bot Scan Complete ===');
+    core.info(`Total TODOs found: ${todos.length}`);
+    core.info(`Unique TODOs: ${todoGroups.size}`);
+  } catch (innerError: unknown) {
+    const err = innerError instanceof Error ? innerError : new Error(String(innerError));
+    core.error(`Scan failed: ${err.message}`);
+    if (err.stack) core.debug(err.stack);
+    throw err;
   }
-
-  core.info(`Default branch: ${defaultBranch}`);
-
-  const workspacePath = process.env.GITHUB_WORKSPACE || process.cwd();
-  const todos = scanRepository(workspacePath);
-
-  if (todos.length === 0) {
-    core.info('No TODO annotations found in the repository.');
-  }
-
-  const todoGroups = groupTodosByDescription(todos);
-  core.info(`Grouped into ${todoGroups.size} unique TODO(s)`);
-
-  await syncIssues(octokit, owner, repo, todoGroups, defaultBranch);
-
-  core.info('=== Doto Bot Scan Complete ===');
-  core.info(`Total TODOs found: ${todos.length}`);
-  core.info(`Unique TODOs: ${todoGroups.size}`);
 }
 
 /**
@@ -93,9 +102,16 @@ async function handleResolve(
   repo: string,
   issueNumber: number,
 ): Promise<void> {
-  core.info(`Resolving TODO for issue #${issueNumber}`);
-  await createResolutionPR(octokit, owner, repo, issueNumber);
-  core.info('=== Doto Bot Resolve Complete ===');
+  try {
+    core.info(`Resolving TODO for issue #${issueNumber}`);
+    await createResolutionPR(octokit, owner, repo, issueNumber);
+    core.info('=== Doto Bot Resolve Complete ===');
+  } catch (innerError: unknown) {
+    const err = innerError instanceof Error ? innerError : new Error(String(innerError));
+    core.error(`Resolve failed: ${err.message}`);
+    if (err.stack) core.debug(err.stack);
+    throw err;
+  }
 }
 
 run();
